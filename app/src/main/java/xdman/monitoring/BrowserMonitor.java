@@ -183,7 +183,7 @@ public class BrowserMonitor implements Runnable {
 		ServerSocket serverSock = null;
 		try {
 			serverSock = new ServerSocket();
-			serverSock.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), 9614));
+			serverSock.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), 7777));
 			XDMApp.instanceStarted();
 			acquireGlobalLock();
 			while (true) {

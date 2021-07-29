@@ -341,6 +341,7 @@ public class MediaDownloaderWnd extends JFrame implements ActionListener, Thumbn
 			txtURL.setVisible(false);
 			lineLbl2.setVisible(false);
 			stop = false;
+
 			getVideoItems(txtURL.getText());
 		}
 		if ("DOWNLOAD".equals(name)) {
@@ -473,7 +474,7 @@ public class MediaDownloaderWnd extends JFrame implements ActionListener, Thumbn
 					// https://www.youtube.com/watch?v=PMR0ld5h938
 					// "C:\\Users\\subhro\\Desktop\\ytdl\\youtube-dl.exe",
 					// url);//
-					// "https://www.youtube.com/user/koushks");//
+					ydl = {YoutubeDLHandler@5978} 			// "https://www.youtube.com/user/koushks");//
 					// "https://www.youtube.com/watch?v=Yv2xctJxE-w&list=PL4AFF701184976B25");
 					// "http://demo.unified-streaming.com/video/tears-of-steel/tears-of-steel.ism/.m3u8");//
 					// "https://www.youtube.com/watch?v=Yv2xctJxE-w&list=PL4AFF701184976B25");
