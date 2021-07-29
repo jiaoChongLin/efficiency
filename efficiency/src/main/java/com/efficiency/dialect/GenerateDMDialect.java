@@ -9,9 +9,5 @@ import java.util.List;
  * @Date : 2021/7/18 20:23
  * @Version : 1.0
  */
-public class GenerateDMDialect implements GenerateDialect {
-    @Override
-    public List<String> getCreateTableSql(TableInfo tableInfo) {
-        return null;
-    }
+public class GenerateDMDialect  {
 }

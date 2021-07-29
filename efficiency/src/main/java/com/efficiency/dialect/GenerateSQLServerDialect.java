@@ -17,67 +17,34 @@ import java.util.Map;
  * @Date : 2021/7/18 20:21
  * @Version : 1.0
  */
-public class GenerateSQLServerDialect implements GenerateDialect {
+public class GenerateSQLServerDialect extends AbstractGenerateDialect {
+    Map<String, String> typeMapper = new HashMap<>();
+
+    public GenerateSQLServerDialect () {
+        typeMapper.put("", "");
+        typeMapper.put("", "");
+        typeMapper.put("", "");
+        typeMapper.put("", "");
+        typeMapper.put("", "");
+        typeMapper.put("", "");
+        typeMapper.put("", "");
+    }
+
     @Override
-    public List<String> getCreateTableSql(TableInfo tableInfo) {
-        if (!tableInfo.getTable_type().equals("TABLE")) {
-            return null;
-        }
-
-        Map<String, String> params = new HashMap<>();
-        String createTable = " create table {table_name}  ( ";
-        params.put("{table_name}", tableInfo.getTable_name());
-
-        if (CollectionUtil.isEmpty(tableInfo.getColunmInfos())) {
-            return null;
-        }
-
-        for (int i = 0, size = tableInfo.getColunmInfos().size(); i < size; i++) {
-            ColunmInfo info = tableInfo.getColunmInfos().get(i);
-            String colInfo = "";
-            String tmp = "colName_" + i;
-            params.put(tmp, info.getColumn_name());
-            colInfo += "{"+tmp+"} ";
-
-            tmp = "colType_" + i;
-            params.put(tmp, info.getType_name());
-            colInfo += "{"+tmp+"} ";
-
-            if (StrUtil.isNotEmpty(info.getColumn_size())) {
-                tmp = "colSize_" + i;
-                params.put(tmp, info.getColumn_size());
-                colInfo += "{"+tmp+"} ";
-            }
-
-            if (StrUtil.isNotEmpty(info.getIs_autoincrement()) && "YES".equalsIgnoreCase(info.getIs_autoincrement())) {
-                tmp = "colIsAuto_" + i;
-                params.put(tmp, " identity ");
-                colInfo += "{"+tmp+"} ";
-            }
-
-            if (StrUtil.isNotEmpty(info.getColumn_def())) {
-                tmp = "colDefault_" + i;
-                params.put(tmp, " default '" + (info.getColumn_def()) + "' ");
-                colInfo += "{"+tmp+"} ";
-            }
-
-            if (StrUtil.isNotEmpty(info.getIs_nullable()) && "NO".equalsIgnoreCase(info.getIs_nullable())) {
-                tmp = "colNotNull_" + i;
-                params.put(tmp, " not null ");
-                colInfo += "{"+tmp+"} ";
-            }
-
-            colInfo += i+1 == size ? "" : ",";
-            createTable += colInfo;
-        }
-
-        createTable += " ) ";
-        List<String> list = new LinkedList<>();
-        list.add(StrUtil.format(createTable, params));
-
+    public String getCreateTableSql(TableInfo tableInfo) {
         //增加注释
 
-        return list;
+        return null;
+    }
+
+    @Override
+    public String getType(String type, String size) {
+        return null;
+    }
+
+    @Override
+    public List<String> generateCommon(TableInfo tableInfo) {
+        return null;
     }
 
     public static void main(String args[]) throws SQLException, ClassNotFoundException {
@@ -86,8 +53,8 @@ public class GenerateSQLServerDialect implements GenerateDialect {
 
         Map<String, TableInfo> map = dataBaseService.getAllTable();
         GenerateSQLServerDialect sqlServerDialect = new GenerateSQLServerDialect();
-        for (String tableName : map.keySet()) {
-            System.out.println(sqlServerDialect.getCreateTableSql(map.get(tableName)));
-        }
+//        for (String tableName : map.keySet()) {
+//            System.out.println(sqlServerDialect.getCreateTableSql(map.get(tableName)));
+//        }
     }
 }

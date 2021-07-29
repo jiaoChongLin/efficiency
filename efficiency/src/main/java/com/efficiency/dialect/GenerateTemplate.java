@@ -1,7 +1,8 @@
-package com.efficiency.template;
+package com.efficiency.dialect;
 
 import com.efficiency.dialect.GenerateDialect;
 import com.efficiency.entity.ColunmInfo;
+import com.efficiency.entity.CompleteTable;
 import com.efficiency.entity.TableInfo;
 
 /**

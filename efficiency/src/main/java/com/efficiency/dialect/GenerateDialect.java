@@ -1,5 +1,6 @@
 package com.efficiency.dialect;
 
+import com.efficiency.entity.CompleteTable;
 import com.efficiency.entity.TableInfo;
 
 import java.util.List;
@@ -10,5 +11,30 @@ import java.util.List;
  * @Version : 1.0
  */
 public interface GenerateDialect {
-    public List<String> getCreateTableSql(TableInfo tableInfo);
+    /**
+     * 生成表sql
+     * @param tableInfo
+     * @return
+     */
+    public String getCreateTableSql(TableInfo tableInfo);
+
+    /**
+     * 生成表注释
+     * @param tableInfo
+     * @return
+     */
+    public List<String> generateCommon(TableInfo tableInfo);
+
+     /* 生成表索引
+     * @param tableInfo
+     * @return
+     */
+    public List<String> generateIndex(TableInfo tableInfo);
+
+    /**
+     * 生成完整表信息.
+     * @param tableInfo
+     * @return
+     */
+    public CompleteTable generateCompleteTable(TableInfo tableInfo);
 }
