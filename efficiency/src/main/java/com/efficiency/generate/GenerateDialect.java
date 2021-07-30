@@ -1,4 +1,4 @@
-package com.efficiency.dialect;
+package com.efficiency.generate;
 
 import com.efficiency.entity.CompleteTable;
 import com.efficiency.entity.TableInfo;

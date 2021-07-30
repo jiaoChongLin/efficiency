@@ -1,7 +1,7 @@
 package com.efficiency.service;
 
 import com.efficiency.entity.ColunmInfo;
-import com.efficiency.entity.DataBaseInfo;
+import com.efficiency.entity.ConnInfo;
 import com.efficiency.entity.IndexInfo;
 import com.efficiency.entity.TableInfo;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 public class DataBaseService {
-    public static DataBaseInfo dataBaseInfo = new DataBaseInfo();
+    public static ConnInfo connInfo = new ConnInfo();
     public static Connection connection;
     private Map<String, TableInfo> tablsMap = new ConcurrentHashMap<>();
 
@@ -116,8 +116,8 @@ public class DataBaseService {
         return tablsMap;
     }
 
-    public DataBaseInfo getDataBaseInfo() {
-        return dataBaseInfo;
+    public ConnInfo getDataBaseInfo() {
+        return connInfo;
     }
 
 

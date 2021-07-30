@@ -1,4 +1,4 @@
-package com.efficiency.dialect;
+package com.efficiency.generate;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
@@ -81,7 +81,9 @@ public abstract class AbstractGenerateDialect implements GenerateDialect {
     }
 
     /**
-     * 生成表sql
+     * 生成表sql.
+     * 返回sql 中会存在一些占位符，根据数据库不通特征去替换为特定语法。存在的占位符有：
+     * autoKey: 自增长, 如果没有就设置 ""
      * @param tableInfo
      * @return
      */
@@ -107,14 +109,14 @@ public abstract class AbstractGenerateDialect implements GenerateDialect {
 
         for (int i = 0, size = colunmInfos.size(); i < size; i++) {
             ColunmInfo info = colunmInfos.get(i);
-            String colInfo = "";
+            String colInfo = "\t";
             String tmp = "colName_" + i;
             params.put(tmp, info.getColumn_name());
             colInfo += "{"+tmp+"} ";
 
             tmp = "colType_" + i;
-            params.put(tmp, info.getType_name());
-            colInfo += "{"+tmp+"} ";
+            params.put(tmp, getType(info.getType_name(), null));
+            colInfo += "{"+tmp+"}";
 
             if (StrUtil.isNotEmpty(info.getColumn_size())) {
                 tmp = "colSize_" + i;
