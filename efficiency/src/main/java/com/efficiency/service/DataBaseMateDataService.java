@@ -24,6 +24,10 @@ public class DataBaseMateDataService {
     @Autowired
     DataBaseMateDataDao dataBaseMateDataDao;
 
+    public Set<String> getAllConnName() {
+        return dataBaseCacheMap.keySet();
+    }
+
     public void refreshConnAndData(ConnInfo connInfo) throws SQLException, ClassNotFoundException {
         initConnAndData(connInfo, true);
     }
@@ -33,7 +37,7 @@ public class DataBaseMateDataService {
     }
 
     public void initConnAndData(ConnInfo connInfo, boolean force) throws ClassNotFoundException, SQLException {
-        DataBaseInfo dataBaseDalect = dataBaseCacheMap.get(connInfo.getDataBaseDalect());
+        DataBaseInfo dataBaseDalect = dataBaseCacheMap.get(connInfo.getConnIdentifier());
 
         if (dataBaseDalect != null && !force) {
             return;
@@ -74,14 +78,16 @@ public class DataBaseMateDataService {
 
         Set<String> result = new HashSet<>();
         for (TableInfo item : list) {
-            result.add(item.getTable_name());
+            if ("TABLE".equals(item.getTable_type())) {
+                result.add(item.getTable_name());
+            }
         }
 
         return result;
     }
 
     public List<TableInfo> getAllTableInfo(ConnInfo connInfo) {
-        DataBaseInfo dataBaseInfo =  dataBaseCacheMap.get(connInfo.getDataBaseDalect());
+        DataBaseInfo dataBaseInfo =  dataBaseCacheMap.get(connInfo.getConnIdentifier());
         if (dataBaseInfo == null) {
             return Collections.emptyList();
         }

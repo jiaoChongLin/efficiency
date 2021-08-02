@@ -25,8 +25,13 @@ public abstract class AbstractGenerateDialect implements GenerateDialect {
         completeTable.setTableSql(getCreateTableSql(tableInfo));
         completeTable.setCommonSqlList(generateCommon(tableInfo));
         completeTable.setIndexSqlList(generateIndex(tableInfo));
+        completeTable.setExtendList(getExtendSqlList(tableInfo));
 
         return completeTable;
+    }
+
+    public List<String> getExtendSqlList (TableInfo tableInfo) {
+        return Collections.emptyList();
     }
 
     /* 生成表索引
@@ -152,10 +157,23 @@ public abstract class AbstractGenerateDialect implements GenerateDialect {
     }
 
     /**
-     * 根据类型返回指定数据库对应的数据类型
+     * 返回类型映射 map.
+     * @return
+     */
+    public abstract Map<String, String> getTypeMapper();
+
+    /**
+     * 根据类型返回指定数据库对应的数据类型.
      * @param type
      * @param size
      * @return
      */
-    public abstract String getType(String type, String size);
+    public String getType(String type, String size) {
+        String result = getTypeMapper().get(type.toUpperCase());
+        if (StrUtil.isEmpty(result)) {
+            return "???";    //默认无法映射
+        }
+
+        return StrUtil.isEmpty(size) ? result : result + "(" + size + ")";
+    }
 }

@@ -61,14 +61,19 @@ public class GenerateSQLServerDialect extends AbstractGenerateDialect {
         return sql;
     }
 
-    @Override
-    public String getType(String type, String size) {
-        String result = typeMapper.get(type.toUpperCase());
-        if (StrUtil.isEmpty(result)) {
-            return "???";    //默认无法映射
-        }
+//    @Override
+//    public String getType(String type, String size) {
+//        String result = typeMapper.get(type.toUpperCase());
+//        if (StrUtil.isEmpty(result)) {
+//            return "???";    //默认无法映射
+//        }
+//
+//        return StrUtil.isEmpty(size) ? result : result + "(" + size + ")";
+//    }
 
-        return StrUtil.isEmpty(size) ? result : result + "(" + size + ")";
+    @Override
+    public Map<String, String> getTypeMapper() {
+        return typeMapper;
     }
 
     @Override

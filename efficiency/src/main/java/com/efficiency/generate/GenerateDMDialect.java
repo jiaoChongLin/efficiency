@@ -1,8 +1,11 @@
 package com.efficiency.generate;
 
+import cn.hutool.core.util.StrUtil;
+import com.efficiency.entity.ColunmInfo;
 import com.efficiency.entity.TableInfo;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -45,12 +48,34 @@ public class GenerateDMDialect extends AbstractGenerateDialect {
     }
 
     @Override
-    public String getType(String type, String size) {
-        return null;
+    public String getCreateTableSql(TableInfo tableInfo) {
+        String sql = super.getCreateTableSql(tableInfo);
+        //二次替换
+        Map<String, String> params = new HashMap<>();
+        params.put("autoKey", " IDENTITY ");
+        sql = StrUtil.format(sql, params);
+
+        return sql;
+    }
+
+    @Override
+    public Map<String, String> getTypeMapper() {
+        return typeMapper;
     }
 
     @Override
     public List<String> generateCommon(TableInfo tableInfo) {
-        return null;
+//        COMMENT ON TABLE "SYSDBA"."PLK_CHANNEL" IS 'plk渠道表';
+//        COMMENT ON COLUMN "SYSDBA"."PLK_CHANNEL"."PC_CREATE_ENT_ID" IS '创建人';
+
+        List<String> list = new LinkedList<>();
+        String tabName = tableInfo.getTable_name();
+        list.add("comment on table \"" + tabName + "\" is '" + tableInfo.getRemarks() + "'");
+
+        for (ColunmInfo colunmInfo : tableInfo.getColunmInfos()) {
+            list.add("comment on column \"" + tabName + "\".\"" + colunmInfo.getColumn_name() + "\" is '" + colunmInfo.getRemarks() + "'");
+        }
+
+        return list;
     }
 }

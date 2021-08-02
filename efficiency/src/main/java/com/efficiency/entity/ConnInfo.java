@@ -2,6 +2,9 @@ package com.efficiency.entity;
 
 import lombok.Data;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 /**
  * @Author : Vincent.jiao
  * @Date : 2021/7/18 16:55
@@ -15,6 +18,12 @@ public class ConnInfo {
     private String url;
 
     public String getConnIdentifier(){
-        return dataBaseDalect.value + ":" + username + ":" + password + ":" + url;
+        try {
+            return dataBaseDalect.value + ":" + username + ":" + password + ":" + URLDecoder.decode(url, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return "";
     }
 }

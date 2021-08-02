@@ -56,10 +56,16 @@ public class DataBaseToolService {
         }
 
         List<TableInfo> tranList = new LinkedList<>();
-        for (TableInfo item : list) {
-            if (tablelNameList.contains(item.getTable_name())) {
-                tranList.add(item);
+
+        if (!CollectionUtil.isEmpty(tablelNameList)) {
+            for (TableInfo item : list) {
+                if (tablelNameList.contains(item.getTable_name())) {
+                    tranList.add(item);
+                }
             }
+
+        } else {
+            tranList = list;
         }
 
         return translate(tranList);
@@ -72,6 +78,10 @@ public class DataBaseToolService {
         map.put(DataBaseDalect.DM.value, new LinkedList<>());
 
         for (TableInfo item : list) {
+            if (!"TABLE".equals(item.getTable_type())) {
+                continue;
+            }
+
             GenerateDialect generateDialect = new GenerateSQLServerDialect();
             CompleteTable completeTable = generateDialect.generateCompleteTable(item);
             map.get(DataBaseDalect.SQLSERVER.value).add(completeTable);
@@ -87,4 +97,5 @@ public class DataBaseToolService {
 
         return map;
     }
+
 }

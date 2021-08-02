@@ -1,10 +1,14 @@
 package com.efficiency.controller;
 
 import com.efficiency.entity.ConnInfo;
+import com.efficiency.entity.R;
 import com.efficiency.service.DataBaseMateDataService;
+import com.efficiency.service.DataBaseToolService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.sql.SQLException;
+import java.util.Arrays;
 
 /**
  * @author vincent.jiao
@@ -13,7 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/db")
 public class DataBaseToolController {
     @Autowired
-    DataBaseMateDataService dataBaseMateDataService;
+    DataBaseMateDataService mateDataService;
+
+    @Autowired
+    DataBaseToolService toolService;
 
     /**
      * 返回所有表名
@@ -22,7 +29,7 @@ public class DataBaseToolController {
      */
     @RequestMapping("getAllTable")
     public Object getAllTable(ConnInfo connInfo) {
-        return null;
+        return mateDataService.getAllTableName(connInfo);
     }
 
     /**
@@ -31,18 +38,17 @@ public class DataBaseToolController {
      * @return
      */
     @RequestMapping("initConnInfo")
-    public Object initConnInfo(ConnInfo connInfo) {
-        return null;
+    public void initConnInfo(ConnInfo connInfo) throws SQLException, ClassNotFoundException {
+        mateDataService.initConnAndData(connInfo);
     }
 
     /**
      * 返回所有链接
-     * @param connInfo
      * @return
      */
     @RequestMapping("getAllConnInfo")
-    public Object getAllConnInfo(ConnInfo connInfo) {
-        return null;
+    public Object getAllConnInfo() {
+        return mateDataService.getAllConnName();
     }
 
     /**
@@ -51,8 +57,8 @@ public class DataBaseToolController {
      * @return
      */
     @RequestMapping("refreshConnInfo")
-    public Object refreshConnInfo(ConnInfo connInfo) {
-        return null;
+    public void refreshConnInfo(ConnInfo connInfo) throws SQLException, ClassNotFoundException {
+        mateDataService.refreshConnAndData(connInfo);
     }
 
     /**
@@ -60,8 +66,23 @@ public class DataBaseToolController {
      * @param connInfo
      * @return
      */
-    @RequestMapping("translateSql")
-    public Object translateSql(ConnInfo connInfo) {
-        return null;
+    @PostMapping("translateSql")
+    public Object translateSql(ConnInfo connInfo,  String[] tables) {
+        Object result = null;
+
+        if (tables == null || tables.length == 0) {
+            return R.fail("请选择表");
+        }
+
+        return toolService.translate(connInfo, Arrays.asList(tables));
+    }
+
+    /**
+     * 差异对比
+     * @return
+     */
+    @PostMapping("getTableDifference")
+    public Object getTableDifference (@RequestBody ConnInfo connInfo1, @RequestBody ConnInfo connInfo2) {
+        return toolService.getTableDifference(connInfo1, connInfo2);
     }
 }
