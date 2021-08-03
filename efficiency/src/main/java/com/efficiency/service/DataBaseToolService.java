@@ -1,10 +1,8 @@
 package com.efficiency.service;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.efficiency.entity.CompleteTable;
-import com.efficiency.entity.ConnInfo;
-import com.efficiency.entity.DataBaseDalect;
-import com.efficiency.entity.TableInfo;
+import com.efficiency.dao.ExecuteSQLDao;
+import com.efficiency.entity.*;
 import com.efficiency.generate.GenerateDMDialect;
 import com.efficiency.generate.GenerateDialect;
 import com.efficiency.generate.GenerateOracleDialect;
@@ -22,6 +20,9 @@ import java.util.*;
 public class DataBaseToolService {
     @Autowired
     DataBaseMateDataService dataBaseMateDataService;
+
+    @Autowired
+    ExecuteSQLDao executeSQLDao;
 
     public Map<String, Set<String>> getTableDifference (ConnInfo connInfo1, ConnInfo connInfo2) {
         Map<String, Set<String>> resultMap = new HashMap<>();
@@ -98,4 +99,38 @@ public class DataBaseToolService {
         return map;
     }
 
+    public SQLResult executeSQL (String sql, ConnInfo connInfo) throws Exception {
+        DataBaseInfo dataBaseInfo = dataBaseMateDataService.getDataBaseInfo(connInfo);
+        if (dataBaseInfo == null) {
+            throw new Exception("此链接未初始化");
+        }
+
+        Integer type = 1;
+        sql = sql.trim().toLowerCase();
+        if (sql.startsWith("select")) {
+            type = 1;
+        } else if (sql.startsWith("delete")) {
+            type = 2;
+        } else if (sql.startsWith("update")) {
+            type = 3;
+        } else if (sql.startsWith("insert")) {
+            type = 4;
+        } else {
+            type = 5;
+        }
+
+        Object result = null;
+        if (type == 1) {
+            result = executeSQLDao.select(sql, dataBaseInfo.getConnection());
+
+        } else {
+            result = executeSQLDao.executeUpdate(sql, dataBaseInfo.getConnection());
+        }
+
+        SQLResult sqlResult = new SQLResult();
+        sqlResult.setType(type);
+        sqlResult.setData(result);
+
+        return sqlResult;
+    }
 }

@@ -1,12 +1,15 @@
 package com.efficiency.controller;
 
 import com.efficiency.entity.ConnInfo;
+import com.efficiency.entity.DifferenceSourceDTO;
 import com.efficiency.entity.R;
+import com.efficiency.entity.SQLResult;
 import com.efficiency.service.DataBaseMateDataService;
 import com.efficiency.service.DataBaseToolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLDecoder;
 import java.sql.SQLException;
 import java.util.Arrays;
 
@@ -82,7 +85,13 @@ public class DataBaseToolController {
      * @return
      */
     @PostMapping("getTableDifference")
-    public Object getTableDifference (@RequestBody ConnInfo connInfo1, @RequestBody ConnInfo connInfo2) {
-        return toolService.getTableDifference(connInfo1, connInfo2);
+    public Object getTableDifference (@RequestBody DifferenceSourceDTO sourceDto) {
+        return toolService.getTableDifference(sourceDto.getConnInfo1(), sourceDto.getConnInfo2());
+    }
+
+    @PostMapping("sqlExecute")
+    public Object executeSQL (@RequestBody String sql, ConnInfo connInfo) throws Exception {
+        sql = URLDecoder.decode(URLDecoder.decode(sql, "UTF-8"), "UTF-8");
+        return toolService.executeSQL(sql, connInfo);
     }
 }

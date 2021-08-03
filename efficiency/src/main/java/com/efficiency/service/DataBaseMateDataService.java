@@ -36,6 +36,10 @@ public class DataBaseMateDataService {
         initConnAndData(connInfo, false);
     }
 
+    public DataBaseInfo getDataBaseInfo (ConnInfo connInfo) {
+        return dataBaseCacheMap.get(connInfo.getConnIdentifier());
+    }
+
     public void initConnAndData(ConnInfo connInfo, boolean force) throws ClassNotFoundException, SQLException {
         DataBaseInfo dataBaseDalect = dataBaseCacheMap.get(connInfo.getConnIdentifier());
 
