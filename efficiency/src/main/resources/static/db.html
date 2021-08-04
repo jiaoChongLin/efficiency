@@ -467,7 +467,8 @@
                 type: "POST",
                 url: rootUrl + "sqlExecute?" + param ,
                 contentType:'application/json',
-                data: JSON.stringify( {  'sql' : sql }) ,
+                Accept:'*/*',
+                data: JSON.stringify( {'sql' : sql }) ,
                 dataType: "json",
                 success: function (data) {
                     if (data.code != 200) {

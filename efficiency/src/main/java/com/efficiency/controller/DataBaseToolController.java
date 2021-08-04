@@ -1,9 +1,6 @@
 package com.efficiency.controller;
 
-import com.efficiency.entity.ConnInfo;
-import com.efficiency.entity.DifferenceSourceDTO;
-import com.efficiency.entity.R;
-import com.efficiency.entity.SQLResult;
+import com.efficiency.entity.*;
 import com.efficiency.service.DataBaseMateDataService;
 import com.efficiency.service.DataBaseToolService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,8 +87,8 @@ public class DataBaseToolController {
     }
 
     @PostMapping("sqlExecute")
-    public Object executeSQL (@RequestBody String sql, ConnInfo connInfo) throws Exception {
-        sql = URLDecoder.decode(URLDecoder.decode(sql, "UTF-8"), "UTF-8");
+    public Object executeSQL (@RequestBody ExecuteSQL executeSQL, ConnInfo connInfo) throws Exception {
+        String sql = URLDecoder.decode(URLDecoder.decode(executeSQL.getSql(), "UTF-8"), "UTF-8");
         return toolService.executeSQL(sql, connInfo);
     }
 }
