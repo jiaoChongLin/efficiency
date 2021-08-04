@@ -13,6 +13,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
 
 /**
  * 分页.
@@ -37,24 +38,54 @@ public class ResultHandlerAspect {
     @Around("applicationPackagePointcut()")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
         R r = null;
+        Object result = null;
         try {
-            Object result = joinPoint.proceed();
+            result = joinPoint.proceed();
             r = result instanceof R ? (R) result : R.ok(result);
 
         } catch (Exception e) {
-            r = R.fail(e.getMessage());
+            e.printStackTrace();
+            //显示详细错误信息
+            StackTraceElement stackObj = e.getStackTrace()[0];
+            for (StackTraceElement stack : e.getStackTrace()) {
+                if (stack.getClassName().startsWith("com.efficiency")) {
+                    stackObj = stack;
+                    break;
+                }
+            }
+
+            String msg = e.getClass() + ":" + e.getMessage();
+            msg += "错误路径：" + stackObj.getClassName()+"."+stackObj.getMethodName()+" 行号："+stackObj.getLineNumber();
+            r = R.fail(msg);
         }
 
-//        if (r.getCode() != 200) {
-//            ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-//            if (attrs != null) {
-//                HttpServletResponse response = attrs.getResponse();
-//                response.setStatus(r.getCode());
-//                response.setCharacterEncoding("UTF-8");
-//                response.setContentType("application/json;charset=UTF-8");
-//                response.getWriter().print(JSONUtil.parse(r).toString());
-//            }
-//        }
+        //方法无返回值的使用输出流输出
+        if (result == null) {
+            Class claasObj = joinPoint.getTarget().getClass();
+            Method[] methods = claasObj.getDeclaredMethods();
+            Method method = null;
+            for (Method item : methods) {
+                if (item.getName().equals(joinPoint.getSignature().getName())) {
+                    method = item;
+                    break;
+                }
+            }
+
+            if (method != null) {
+                if ("void".equals(method.getReturnType().getName())) {
+                    ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+                    if (attrs != null) {
+                        HttpServletResponse response = attrs.getResponse();
+//                        response.setStatus(r.getCode());
+                        response.setCharacterEncoding("UTF-8");
+                        response.setContentType("application/json;charset=UTF-8");
+                        response.getWriter().print(JSONUtil.parse(r).toString());
+                    }
+
+                    return null;
+                }
+            }
+        }
 
         return r;
     }

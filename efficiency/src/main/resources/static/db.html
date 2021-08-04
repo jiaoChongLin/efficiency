@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <title>内部开发工具 - 数据库</title>
     <script src="https://cdn.staticfile.org/jquery/1.9.1/jquery.min.js"></script>
+    <style>
+        table,table tr th, table tr td { border:1px solid #0094ff; }
+        table { width: 200px; min-height: 25px; line-height: 25px; text-align: center; border-collapse: collapse;}
+    </style>
 </head>
 <body style="padding: 20px">
     <div id = "dbInfo" style="border-bottom: 1px solid; overflow:hidden;">
@@ -29,9 +33,9 @@
 
             <select id="dbTypeSelect" name="dbType">
                 <option name="MYSQL" value="MYSQL">MYSQL</option>
-                <option name="SQLSERVER" value="SQLSERVER">MYSQL</option>
-                <option name="ORACLE" value="MYSQL">ORACLE</option>
-                <option name="DM" value="DM">MYSQL</option>
+                <option name="SQLSERVER" value="SQLSERVER">SQLSERVER</option>
+                <option name="ORACLE" value="ORACLE">ORACLE</option>
+                <option name="DM" value="DM">DM</option>
             </select>
             <input id="dbNameText" type="text" name="name" value="root" placeholder="用户名"/>
             <input id="dbPasswordText" type="text" name="password" value="123456" placeholder="密码"/>
@@ -120,7 +124,7 @@
         <div class="panel">
             <h3>表差异对比</h3>
             <p>
-                这里将会对比2个数据库各自对比对方所缺少的表
+                这里将会对比2个数据库各自对比对方所多出的表。
             </p>
 
             <span>请选择数据源1：</span>
@@ -138,13 +142,13 @@
             <input type="button" name="translateBtn" id="dbDifferenceBtn" value="对比"/>
             <br/>
 
-            <div style="display:inline-block; margin-top: 10px; padding: 5px;
-                width: 45%; background-color: #f0f0f0;">
-                111
+            <div id="differenceContent1" style="display:inline-block; margin-top: 10px; padding: 5px;
+                width: 45%; background-color: #f0f0f0;     word-wrap: break-word;
+    word-break: normal;overflow-y: scroll;">
             </div>
-            <div style="display:inline-block; margin-top: 10px; padding: 5px;
-                width: 45%; background-color: #f0f0f0;">
-                111
+            <div id="differenceContent2" style="display:inline-block; margin-top: 10px; padding: 5px;
+                width: 45%; background-color: #f0f0f0;   word-wrap: break-word;
+    word-break: normal;overflow-y: scroll;">
             </div>
         </div>
     </div>
@@ -167,7 +171,7 @@
             <textarea placeholder="" style=" width: 400px; height: 400px " id="executeText"></textarea>
             <textarea placeholder="" style=" width: 400px; height: 400px " id="tmpStorageText"></textarea>
 
-            <div id="sqlExecuteMsg" style="width: 100%; height: 600px"></div>
+            <div id="sqlExecuteMsg" style="width: 100%; height: 600px; overflow-x: auto;"overflow-y: auto;></div>
         </div>
     </div>
 
@@ -214,7 +218,7 @@
                     for (var key in data.data) {
                         var value = data.data[key];
 
-                        tmp += "<span style='padding: 5px'>" + (value.substring(0, 100)) + "</span>";
+                        tmp += "<span style='padding-top: 10px'>" + (value.substring(0, 100)) + "</span><br/>";
 
                         //查看连接释放存在
                         var isFind = false;
@@ -263,7 +267,7 @@
             for (var key in historyList) {
                 var value = historyList[key];
 
-                tmp += "<span style='padding: 5px'>" + (value.substring(0, 100)) + "</span>";
+                tmp += "<span class='historySpan' value='"+value+"' style='padding: 5px'>" + (value.substring(0, 100)) + "</span>";
             }
             $("#allConnDivContentHistory").html(tmp);
         }
@@ -276,13 +280,19 @@
                             $("#dbNameText").val(),
                             $("#dbPasswordText").val(),
                             $("#dbUrlText").val());
+            $.ajax({
+                type: "GET",
+                url: rootUrl + "initConnInfo"+"?"+param ,
+                success: function (data) {
+                    if (data.code == 200) {
+                        getAllConnInfo();
 
-            $.post(rootUrl + "initConnInfo"+"?"+param, {}, function (data, status) {
-                if (status == 'success') {
-                    getAllConnInfo();
-
-                } else {
-                    alert(data.msg);
+                    } else {
+                        alert(data.msg);
+                    }
+                },
+                error : function (msg) {
+                    alert(msg);
                 }
             });
         });
@@ -319,6 +329,17 @@
             return getDDBUrl(map["dbType"],
                 map["name"], map["password"], map["url"]);
         }
+
+        //点击历史记录就补全链接
+        $(".historySpan").click(function () {
+            var historyUrl = $(this).attr("value");
+            var urlMap = getUrlMapByJoinName(historyUrl);
+
+            $("#dbTypeSelect").val(urlMap["dbType"]);
+            $("#dbNameText").val(urlMap["name"]);
+            $("#dbPasswordText").val(urlMap["password"]);
+            $("#dbUrlText").val(unescape(unescape(urlMap["url"])));
+        });
 
         //获取全部表名
         $("#getAllTableBtn").click(function () {
@@ -431,16 +452,22 @@
         $("#dbDifferenceBtn").click(function () {
             var dataMap = {};
             var paraMap = getUrlMapByJoinName($("#dbDifference1").val());
-            dataMap['connInfo1.dataBaseDalect'] = paraMap["dbType"];
-            dataMap['connInfo1.username'] = paraMap["name"];
-            dataMap['connInfo1.password'] = paraMap["password"];
-            dataMap['connInfo1.url'] = paraMap["url"];
-
+            var connInfo1 = {
+                "dataBaseDalect" : paraMap["dbType"],
+                "username" : paraMap["name"],
+                "password" : paraMap["password"],
+                "url" : paraMap["url"]
+            };
             paraMap = getUrlMapByJoinName($("#dbDifference2").val());
-            dataMap['connInfo2.dataBaseDalect'] = paraMap["dbType"];
-            dataMap['connInfo2.username'] = paraMap["name"];
-            dataMap['connInfo2.password'] = paraMap["password"];
-            dataMap['connInfo2.url'] = paraMap["url"];
+            var connInfo2 = {
+                "dataBaseDalect" : paraMap["dbType"],
+                "username" : paraMap["name"],
+                "password" : paraMap["password"],
+                "url" : paraMap["url"]
+            };
+
+            dataMap["connInfo1"] = connInfo1;
+            dataMap["connInfo2"] = connInfo2;
 
             $.ajax({
                 type: "POST",
@@ -449,7 +476,22 @@
                 data: JSON.stringify(dataMap),
                 dataType: "json",
                 success: function (data) {
-                    console.log(data);
+                    if (data.code != 200) {
+                        alert(data.msg);
+                        return;
+                    }
+
+                    data = data.data;
+                    var i = 1;
+                    var html = '';
+                    for (var dataKey in data) {
+                        html = dataKey + "<br/>";
+                        for (let j = 0; j < data[dataKey].length; j++) {
+                            html += "<p  '>"+(data[dataKey][j])+"</p>";
+                        }
+                        $("#differenceContent"+(i++)).html(html);
+
+                    }
                 },
                 error : function (msg) {
                     alert(msg);
@@ -472,26 +514,45 @@
                 dataType: "json",
                 success: function (data) {
                     if (data.code != 200) {
-                        alert(data.msg);
+                        $("#sqlExecuteMsg").html("<p>" +
+                            " <span>sql >: </span> "+ decodeURIComponent(sql) +
+                            " <br/>"+
+                            " 结果"+data.msg+"</p>"
+                            + $("#sqlExecuteMsg").html());
                         return;
                     }
 
-                    data = data.data;
                     var contentHtml = "";
+                    data = data.data;
                     if (data.type == 1) {
+                        data = data.data;
                         contentHtml = "<table>";
-                        // contentHtml = "<tr>";
-                        // contentHtml = "</tr>";
+
+                        for (var i = 0; i < data.length; i++) {
+                            contentHtml += "<tr>";
+
+                            for (var j = 0; j < data[i].length; j++) {
+                                contentHtml += "<td>";
+                                contentHtml += data[i][j];
+                                contentHtml += "</td>";
+                            }
+                            contentHtml += "</tr>";
+                        }
+
                         contentHtml += "</table>";
+                        $("#sqlExecuteMsg").html(contentHtml);
 
-                    } else {
-
+                    } else if (data.type == 2 || data.type == 3 || data.type == 4) {
+                        $("#sqlExecuteMsg").html("<p>" +
+                            " <span>sql >: </span> "+ decodeURIComponent(sql) +
+                            " <br/>"+
+                            " 结果 >: 受影响行数 "+data.data+"</p>"
+                            + $("#sqlExecuteMsg").html());
+                        return;
                     }
-
-                    $("#sqlExecuteMsg").html(contentHtml + $("#sqlExecuteMsg").html());
                 },
                 error : function (msg) {
-                    alert(msg);
+                    $("#sqlExecuteMsg").html(msg + $("#sqlExecuteMsg").html());
                 }
             });
         });

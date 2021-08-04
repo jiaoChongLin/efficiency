@@ -58,7 +58,9 @@ public class DataBaseMateDataDao {
         List<TableInfo> list = getAllTableInfo(conn);
         if (CollectionUtil.isNotEmpty(list)) {
             for (TableInfo item : list) {
-                setTableInfoDetail(conn, item);
+                if ("TABLE".equals(item.getTable_type())) {
+                    setTableInfoDetail(conn, item);
+                }
             }
         }
 
@@ -68,8 +70,10 @@ public class DataBaseMateDataDao {
 
     private void setTableInfoDetail (Connection conn, TableInfo tableInfo) throws SQLException {
         if (tableInfo != null) {
-            tableInfo.setColunmInfos(getColunmInfoByTableName(conn, tableInfo.getTable_name()));
-            tableInfo.setIndexInfos(getIndexInfoByTableName(conn, tableInfo.getTable_name()));
+            try {
+                tableInfo.setColunmInfos(getColunmInfoByTableName(conn, tableInfo.getTable_name()));
+                tableInfo.setIndexInfos(getIndexInfoByTableName(conn, tableInfo.getTable_name()));
+            } catch (Exception e){}
         }
     }
 

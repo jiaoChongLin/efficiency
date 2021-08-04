@@ -49,8 +49,8 @@ public class DataBaseMateDataService {
 
         switch (connInfo.getDataBaseDalect()) {
             case DM:
-//                Class.forName("dm.jdbc.driver.DmDriver");
-                Class.forName("org.hibernate.dialect.DmDialect");
+                Class.forName("dm.jdbc.driver.DmDriver");
+//                Class.forName("org.hibernate.dialect.DmDialect");
                 break;
             case ORACLE:
                 Class.forName("oracle.jdbc.driver.OracleDriver");
@@ -74,17 +74,54 @@ public class DataBaseMateDataService {
         dataBaseCacheMap.put(connInfo.getConnIdentifier(), dataBaseInfo);
     }
 
+    /**
+     * 返回全部表名(小写).
+     * 会去除系统表，但不一定去除的干净.
+     * @param connInfo
+     * @return
+     */
     public Set<String> getAllTableName (ConnInfo connInfo) {
         List<TableInfo> list = getAllTableInfo(connInfo);
         if (CollectionUtil.isEmpty(list)) {
             return Collections.emptySet();
         }
 
+        Set<String> oracleSysTable = new HashSet<>();
+        oracleSysTable.add("DBA_");
+        oracleSysTable.add("DBMS_");
+        oracleSysTable.add("ORDDCM_");
+        oracleSysTable.add("WWV_");
+        oracleSysTable.add("SYS_");
+        oracleSysTable.add("SDO_");
+        oracleSysTable.add("OLD_");
+        oracleSysTable.add("OPATCH_");
+        oracleSysTable.add("OLS_");
+
         Set<String> result = new HashSet<>();
         for (TableInfo item : list) {
-            if ("TABLE".equals(item.getTable_type())) {
-                result.add(item.getTable_name());
+            if (!"TABLE".equals(item.getTable_type())) {
+                continue;
             }
+
+            if (connInfo.getDataBaseDalect().equals(DataBaseDalect.ORACLE)) {
+                if (item.getTable_name().indexOf("$") > -1) {
+                    continue;
+                }
+
+                boolean isContinue = false;
+                for (String key : oracleSysTable) {
+                    if (item.getTable_name().startsWith(key)) {
+                        isContinue = true;
+                        break;
+                    }
+                }
+
+                if (isContinue) {
+                    continue;
+                }
+            }
+
+            result.add(item.getTable_name().toLowerCase());
         }
 
         return result;

@@ -36,7 +36,7 @@ public class DataBaseToolService {
 
         tmpSet = new HashSet<>(allTable2);
         tmpSet.removeAll(allTable1);
-        resultMap.put(connInfo1.getConnIdentifier(), tmpSet);
+        resultMap.put(connInfo2.getConnIdentifier(), tmpSet);
 
         return resultMap;
     }
